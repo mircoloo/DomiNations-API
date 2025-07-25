@@ -1,9 +1,15 @@
+// imports
 const mongoose = require('mongoose');
+const express = require('express');
+const app = express()
 require('dotenv').config();
 
-console.log("Starting Domination API...");
+// constants
 const mogooseUri = process.env.MONGOOSE_URI;
 const clientOptions = { serverApi: { version: '1', strict: true, deprecationErrors: true } };
+const port = process.env.PORT || 3000;
+
+console.log("Starting Domination API...");
 async function run() {
     try {
         // Create a Mongoose client with a MongoClientOptions object to set the Stable API version
@@ -16,5 +22,8 @@ async function run() {
         console.log("Mongoose disconnected successfully from mongoDB Atlas");
     }
 }
+app.listen(port, () => {
+    run().catch(console.dir);
+    console.log(`Example app listening on port http://localhost:${port}`)
+})
 
-run().catch(console.dir);
