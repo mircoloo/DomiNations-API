@@ -1,6 +1,7 @@
 // imports
 const mongoose = require('mongoose');
 const express = require('express');
+const Sentry = require("@sentry/node");
 const app = express()
 require('dotenv').config();
 
@@ -14,6 +15,24 @@ const clientOptions = {
     }
 };
 const port = process.env.PORT || 3000;
+Sentry.init({
+  dsn: process.env.SENTRY_DSN || "",
+
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true,
+});
+
+
+
+app.use(function onError(err: any, req: any, res: any, next:any) {
+  // The error id is attached to `res.sentry` to be returned
+  // and optionally displayed to the user for support.
+  res.statusCode = 500;
+  res.end(res.sentry + "\n");
+});
+
+
 
 console.log("Starting Domination API...");
 async function run() {
@@ -35,7 +54,13 @@ async function run() {
     }
 }
 
+app.get("/debug-sentry", function mainHandler(req: any, res: any) {
+  throw new Error("My first Sentry error!");
+});
+
 app.listen(port, () => {
     run().catch(console.dir);
     console.log(`Example app listening on port http://localhost:${port}`)
 })
+
+Sentry.setupExpressErrorHandler(app);
