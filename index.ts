@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const express = require('express');
 const Sentry = require("@sentry/node");
 const app = express()
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./OpenAPI.json');
 require('dotenv').config();
 
 // constants
@@ -54,13 +56,17 @@ async function run() {
     }
 }
 
+// Swagger UI
+app.use('/api/v1/Docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.get("/debug-sentry", function mainHandler(req: any, res: any) {
   throw new Error("My first Sentry error!");
 });
 
 app.listen(port, () => {
     run().catch(console.dir);
-    console.log(`Example app listening on port http://localhost:${port}`)
+    console.log(`App listening on http://localhost:${port}`)
+    console.log(`Swagger UI available on http://localhost:${port}/api/v1/Docs`)
 })
 
 Sentry.setupExpressErrorHandler(app);
